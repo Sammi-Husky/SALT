@@ -1,12 +1,9 @@
-﻿namespace System
+﻿using System.Text.RegularExpressions;
+
+namespace System
 {
     public static class StringExtension
     {
-        public static bool Contains(this string source, string value, StringComparison comp)
-        {
-            return source.IndexOf(value, comp) >= 0;
-        }
-
         public static string TruncateAndFill(this string s, int length, char fillChar)
         {
             int min = length;
@@ -48,6 +45,16 @@
             }
 
             return -1;
+        }
+
+        public static string ReplaceFirstOccurance(this string text, string search, string replace)
+        {
+            int pos = text.IndexOf(search);
+            if (pos < 0)
+            {
+                return text;
+            }
+            return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
         }
     }
 }
