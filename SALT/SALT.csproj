@@ -65,6 +65,7 @@
     <Compile Include="Scripting\MSC\MSC_INFO.cs" />
     <Compile Include="Scripting\AnimCMD\MTable.cs" />
     <Compile Include="FileBase.cs" />
+    <Compile Include="System\Type Extensions\ColorExtension.cs" />
     <Compile Include="System\Type Extensions\DirectoryExtension.cs" />
     <Compile Include="System\Type Extensions\StreamExtensions.cs" />
     <Compile Include="System\IO\DataSource.cs" />
