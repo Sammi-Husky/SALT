@@ -684,7 +684,7 @@ namespace SALT.Moveset.AnimCMD
             {0x9F118C9E,"SWITCH"},
             {0x032C73B5,"SYNC_POS_NODE"},
             {0x72982F32,"TEST_GROUND"},
-            {0x307D6993,"THROW_ITEM"},
+            {0x307D6993,"THROW_ITEM3"},
             {0x50730439,"Throw_Item"},
             {0x2F20B6C7,"THROW_ITEM_OFFSET_MOTION"},
             {0x6CD94C77,"unk_6CD94C77"},
