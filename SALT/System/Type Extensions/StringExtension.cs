@@ -4,6 +4,11 @@ namespace System
 {
     public static class StringExtension
     {
+        public static bool Contains(this string s, string search, StringComparison comparison)
+        {
+            return s?.IndexOf(search, comparison) >= 0;
+        }
+
         public static string TruncateAndFill(this string s, int length, char fillChar)
         {
             int min = length;
