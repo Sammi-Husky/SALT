@@ -1,4 +1,4 @@
-﻿// Copyright (c) Sammi Husky. All rights reserved.
+﻿// Copyright (c) 2018 Sammi Husky. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Reflection;

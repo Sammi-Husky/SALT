@@ -1,4 +1,4 @@
-﻿// Copyright (c) Sammi Husky. All rights reserved.
+﻿// Copyright (c) 2018 Sammi Husky. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
@@ -34,23 +34,23 @@ namespace SALT.PARAMS
                         ParamType type = (ParamType)stream.ReadByte();
                         switch (type)
                         {
+                            case ParamType.s8:
+                                col.Add(new ParamEntry(reader.ReadSByte(), type));
+                                break;
                             case ParamType.u8:
                                 col.Add(new ParamEntry(reader.ReadByte(), type));
-                                break;
-                            case ParamType.s8:
-                                col.Add(new ParamEntry(reader.ReadByte(), type));
-                                break;
-                            case ParamType.u16:
-                                col.Add(new ParamEntry(reader.ReadUInt16().Reverse(), type));
                                 break;
                             case ParamType.s16:
                                 col.Add(new ParamEntry(reader.ReadInt16().Reverse(), type));
                                 break;
-                            case ParamType.u32:
-                                col.Add(new ParamEntry(reader.ReadUInt32().Reverse(), type));
+                            case ParamType.u16:
+                                col.Add(new ParamEntry(reader.ReadUInt16().Reverse(), type));
                                 break;
                             case ParamType.s32:
                                 col.Add(new ParamEntry(reader.ReadInt32().Reverse(), type));
+                                break;
+                            case ParamType.u32:
+                                col.Add(new ParamEntry(reader.ReadUInt32().Reverse(), type));
                                 break;
                             case ParamType.f32:
                                 col.Add(new ParamEntry(reader.ReadSingle().Reverse(), type));
