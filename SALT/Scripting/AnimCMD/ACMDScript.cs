@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018 Sammi Husky. All rights reserved.
+﻿// Copyright (c) Sammi Husky. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
@@ -127,6 +127,17 @@ namespace SALT.Moveset.AnimCMD
         public List<ICommand> Commands { get { return this._commands; } set { this._commands = value; } }
         private List<ICommand> _commands = new List<ICommand>();
 
+
+
+        public void Serialize(string text)
+        {
+            this.Serialize(text.Split('\n').Select(x => x.Trim()).ToList());
+        }
+        public void Serialize(List<string> lines)
+        {
+            this.Commands = ACMDCompiler.CompileCommands(lines.ToArray()).Cast<ICommand>().ToList();
+        }
+
         public string Deserialize()
         {
             var tmplines = new List<string>(this.Count);
@@ -146,37 +157,6 @@ namespace SALT.Moveset.AnimCMD
             this.DoFormat(ref tmplines);
             return string.Join(Environment.NewLine, tmplines);
         }
-
-        public void Serialize(string text)
-        {
-            this.Serialize(text.Split('\n').Select(x => x.Trim()).ToList());
-        }
-
-        public void Serialize(List<string> lines)
-        {
-            lines.RemoveAll(x => string.IsNullOrEmpty(x));
-            this.Clear();
-            for (int i = 0; i < lines.Count; i++)
-            {
-                string lineText = lines[i].Trim();
-                if (lineText.StartsWith("//"))
-                    continue;
-
-                ACMDCommand cmd = this.ParseCMD(lines[i]);
-                uint ident = cmd.Ident;
-
-
-                if (this.SerializeCommands(ref i, ident, ref lines) > 0)
-                {
-                    continue;
-                }
-                else
-                {
-                    this.Add(cmd);
-                }
-            }
-        }
-
         private int DeserializeCommand(int index, uint ident, ref List<string> lines)
         {
             switch (ident)
@@ -191,15 +171,15 @@ namespace SALT.Moveset.AnimCMD
 
             return 0;
         }
-
         private int DeserializeConditional(int startIndex, ref List<string> lines)
         {
             int i = startIndex;
 
             string str = this[startIndex].ToString();
 
-            int len = (int)this[startIndex].Parameters[0] - 2;
+            int len = (int)this[startIndex].Parameters[0];
             lines.Add($"{str}{{");
+            len -= this[i].Size / 4;
             int count = 0;
             i++;
 
@@ -213,11 +193,12 @@ namespace SALT.Moveset.AnimCMD
                 }
                 else if (IsCmdHandled(this[i].Ident))
                 {
-                    int amt = this.DeserializeCommand(i, this[i].Ident, ref lines);
+                    int amt = this.DeserializeCommand(i, this[i].Ident, ref lines) + 1;
+                    for (int x = 0; x < amt; x++)
+                        len -= this[i + x].Size / 4;
+
                     i += amt;
                     count += amt;
-                    count++;
-                    break;
                 }
                 else
                 {
@@ -233,14 +214,12 @@ namespace SALT.Moveset.AnimCMD
             //  and then deserialize the else statement
             if (IsCmdConditional(this[i].Ident))
             {
-                int amt = this.DeserializeConditional(i, ref lines);
+                int amt = this.DeserializeConditional(i, ref lines) + 1;
                 i += amt;
                 count += amt;
-                count++;
             }
             return count;
         }
-
         private int DeserializeLoop(int startIndex, ref List<string> lines)
         {
             int i = startIndex;
@@ -261,103 +240,6 @@ namespace SALT.Moveset.AnimCMD
             //i++;
             return i - startIndex;
         }
-        private int SerializeCommands(ref int index, uint ident, ref List<string> lines)
-        {
-            if (IsCmdConditional(ident))
-                return this.SerializeConditional(ref index, ref lines);
-            else if (ident == 0x0EB375E3)
-                return this.SerializeLoop(ref index, ref lines);
-            else
-                return 0;
-        }
-
-        private int SerializeConditional(ref int Index, ref List<string> lines)
-        {
-            ACMDCommand cmd = this.ParseCMD(lines[Index]);
-            int len = 2;
-            this.Add(cmd);
-
-            while (lines[++Index].Trim() != "}")
-            {
-                ACMDCommand tmp = this.ParseCMD(lines[Index]);
-                if (this.IsCmdHandled(tmp.Ident))
-                {
-                    len += this.SerializeCommands(ref Index, tmp.Ident, ref lines);
-                }
-                else
-                {
-                    len += tmp.Size / 4;
-                    this.Add(tmp);
-                }
-            }
-
-            if (lines[Index + 1] != "}")
-            {
-                if (ParseCMD(lines[Index + 1]).Ident == 0x895B9275 && cmd.Ident == 0xA5BD4F32)
-                {
-                    ACMDCommand tmp = this.ParseCMD(lines[++Index]);
-                    len += tmp.Size / 4;
-                    this[this.IndexOf(cmd)].Parameters[0] = len;
-                    len -= tmp.Size / 4;
-                    this.SerializeCommands(ref Index, tmp.Ident, ref lines);
-                }
-                else
-                {
-                    this[this.IndexOf(cmd)].Parameters[0] = len;
-                }
-            }
-            else
-            {
-                this[this.IndexOf(cmd)].Parameters[0] = len;
-            }
-
-            return len;
-        }
-
-        private int SerializeLoop(ref int Index, ref List<string> lines)
-        {
-            int start = Index;
-
-            // Serialize all commands without counting len first
-            // Then walk backwards to count len for goto comamnds.
-            // This avoids problems with counting commands in conditional blocks
-            this.Add(this.ParseCMD(lines[Index]));
-            while (this.ParseCMD(lines[++Index]).Ident != 0x38A3EC78)
-            {
-                ACMDCommand tmp = this.ParseCMD(lines[Index]);
-                if (IsCmdHandled(tmp.Ident))
-                {
-                    this.SerializeCommands(ref Index, tmp.Ident, ref lines);
-                }
-                else
-                {
-                    this.Add(tmp);
-                }
-            }
-
-            decimal len = 0;
-            int gotoIndex = Index;
-            while (gotoIndex > start)
-            {
-                if (lines[gotoIndex] == "}")
-                {
-                    gotoIndex--;
-                    continue;
-                }
-                var cmd = this.ParseCMD(lines[gotoIndex]);
-                len += cmd.Size / 4;
-                gotoIndex--;
-            }
-            ACMDCommand endLoop = this.ParseCMD(lines[Index]);
-            endLoop.Parameters[0] = (len - 2) / -1;
-            this.Add(endLoop);
-
-            if (lines[Index + 1].Trim() == "}")
-                Index++;
-
-            // Compensate for len not counting the begin_loop and goto command sizes
-            return (int)len - 4;
-        }
 
         private ACMDCommand ParseCMD(string line)
         {
@@ -373,7 +255,7 @@ namespace SALT.Moveset.AnimCMD
             }
 
 
-            var crc = ACMD_INFO.CMD_NAMES.Single(x => x.Value.Equals(name, StringComparison.InvariantCultureIgnoreCase)).Key;
+            var crc = ACMD_INFO.CMD_NAMES.Single(x => x.Value.Equals(name, StringComparison.InvariantCulture)).Key;
             ACMDCommand cmd = new ACMDCommand(crc);
             for (int i = 0; i < cmd.ParamSpecifiers.Length; i++)
             {

@@ -105,7 +105,7 @@ namespace SALT.Moveset.AnimCMD
                     curLine = string.Empty;
                 }
 
-                end:
+            end:
                 if (tok.TokType != TokenType.Seperator)
                     lastToken = tok;
             }
@@ -228,7 +228,7 @@ namespace SALT.Moveset.AnimCMD
         private static int CompileConditional(ref int Index, ref List<string> lines)
         {
             ACMDCommand cmd = CompileSingleCommand(lines[Index]);
-            int len = 2;
+            int len = cmd.Size / 4;
             Commands.Add(cmd);
 
             while (lines[++Index].Trim() != "}")
@@ -236,6 +236,7 @@ namespace SALT.Moveset.AnimCMD
                 ACMDCommand tmp = CompileSingleCommand(lines[Index]);
                 if (IsCmdHandled(tmp.Ident))
                 {
+                    //recursively add the size of any nested handled statements
                     len += HandleSpecialCommands(ref Index, tmp.Ident, ref lines);
                 }
                 else
@@ -245,20 +246,16 @@ namespace SALT.Moveset.AnimCMD
                 }
             }
 
-            if (lines[Index + 1] != "}")
+            //check for Else statement. If the next command is Else, set True/False size parameter (current len + Else len)
+            //if the True/False statements don't have an Else afterward then just set their size to current len
+            if (lines[Index + 1] != "}"
+                && CompileSingleCommand(lines[Index + 1]).Ident == 0x895B9275
+                && (cmd.Ident == 0xA5BD4F32 || cmd.Ident == 0x870CF021))
             {
-                if (CompileSingleCommand(lines[Index + 1]).Ident == 0x895B9275 && cmd.Ident == 0xA5BD4F32)
-                {
-                    ACMDCommand tmp = CompileSingleCommand(lines[++Index]);
-                    len += tmp.Size / 4;
-                    Commands[Commands.IndexOf(cmd)].Parameters[0] = len;
-                    len -= tmp.Size / 4;
-                    HandleSpecialCommands(ref Index, tmp.Ident, ref lines);
-                }
-                else
-                {
-                    Commands[Commands.IndexOf(cmd)].Parameters[0] = len;
-                }
+                ACMDCommand tmp = CompileSingleCommand(lines[++Index]);
+                Commands[Commands.IndexOf(cmd)].Parameters[0] = len + tmp.Size / 4;
+                //increment handled command length by the size of the Else statement
+                len += HandleSpecialCommands(ref Index, tmp.Ident, ref lines);
             }
             else
             {
