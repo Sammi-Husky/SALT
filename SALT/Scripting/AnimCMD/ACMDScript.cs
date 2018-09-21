@@ -187,7 +187,12 @@ namespace SALT.Moveset.AnimCMD
 
                 if (this[i].Ident == 0x895B9275) // Break if this is an ELSE
                 {
-                    break;
+                    int amt = this.DeserializeConditional(i, ref lines) + 1;
+                    for (int x = 0; x < amt; x++)
+                        len -= this[i + x].Size / 4;
+
+                    i += amt;
+                    count += amt;
                 }
                 else if (IsCmdHandled(this[i].Ident))
                 {
@@ -210,12 +215,12 @@ namespace SALT.Moveset.AnimCMD
 
             //  if we encountered an else, break out of enclosing bracket scope
             //  and then deserialize the else statement
-            if (IsCmdConditional(this[i].Ident))
-            {
-                int amt = this.DeserializeConditional(i, ref lines) + 1;
-                i += amt;
-                count += amt;
-            }
+            //if (IsCmdConditional(this[i].Ident))
+            //{
+            //    int amt = this.DeserializeConditional(i, ref lines) + 1;
+            //    i += amt;
+            //    count += amt;
+            //}
             return count;
         }
         private int DeserializeLoop(int startIndex, ref List<string> lines)

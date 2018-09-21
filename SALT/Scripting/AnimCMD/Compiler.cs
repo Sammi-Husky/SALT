@@ -289,10 +289,8 @@ namespace SALT.Moveset.AnimCMD
             while (--gotoIndex > start)
             {
                 if (lines[gotoIndex] == "}")
-                {
-                    gotoIndex--;
                     continue;
-                }
+
                 var cmd = CompileSingleCommand(lines[gotoIndex]);
                 len += cmd.Size / 4;
             }
