@@ -127,8 +127,6 @@ namespace SALT.Moveset.AnimCMD
         public List<ICommand> Commands { get { return this._commands; } set { this._commands = value; } }
         private List<ICommand> _commands = new List<ICommand>();
 
-
-
         public void Serialize(string text)
         {
             this.Serialize(text.Split('\n').Select(x => x.Trim()).ToList());
@@ -239,51 +237,6 @@ namespace SALT.Moveset.AnimCMD
             lines.Add("}");
             //i++;
             return i - startIndex;
-        }
-
-        private ACMDCommand ParseCMD(string line)
-        {
-            string s = line.TrimStart();
-            s = s.Substring(0, s.IndexOf(')'));
-            var name = s.Substring(0, s.IndexOf('('));
-            var parameters = s.Substring(s.IndexOf('(') + 1).TrimEnd(')').Split(',');
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                string param = parameters[i];
-                if (param.Contains("="))
-                    parameters[i] = param.Remove(0, param.IndexOf("=") + 1).Trim();
-            }
-
-
-            var crc = ACMD_INFO.CMD_NAMES.Single(x => x.Value.Equals(name, StringComparison.InvariantCulture)).Key;
-            ACMDCommand cmd = new ACMDCommand(crc);
-            for (int i = 0; i < cmd.ParamSpecifiers.Length; i++)
-            {
-                switch (cmd.ParamSpecifiers[i])
-                {
-                    case 0:
-                        if (parameters[i].StartsWith("0x"))
-                        {
-                            cmd.Parameters.Add(int.Parse(parameters[i].Substring(2), NumberStyles.HexNumber));
-                        }
-                        else
-                        {
-                            cmd.Parameters.Add(int.Parse(parameters[i]));
-                        }
-                        break;
-                    case 1:
-                        cmd.Parameters.Add(float.Parse(parameters[i], CultureInfo.InvariantCulture));
-                        break;
-                    case 2:
-                        cmd.Parameters.Add(decimal.Parse(parameters[i], CultureInfo.InvariantCulture));
-                        break;
-                    case 3:
-                        cmd.Parameters.Add(new FighterVariable(parameters[i]));
-                        break;
-                }
-            }
-
-            return cmd;
         }
 
         private bool IsCmdHandled(uint ident)
