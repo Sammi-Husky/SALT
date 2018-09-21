@@ -50,6 +50,7 @@
     <Compile Include="PARAMS\ParamType.cs" />
     <Compile Include="PARAMS\ParamFile.cs" />
     <Compile Include="Scripting\AnimCMD\ACMDCommand.cs" />
+    <Compile Include="Scripting\AnimCMD\ACMDDecompiler.cs" />
     <Compile Include="Scripting\AnimCMD\ACMDFile.cs" />
     <Compile Include="Scripting\AnimCMD\ACMDScript.cs" />
     <Compile Include="Scripting\AnimCMD\CMD_INFO.cs" />
