@@ -159,9 +159,11 @@ namespace SALT.Moveset.AnimCMD
         {
             switch (ident)
             {
-                case 0xA5BD4F32:
-                case 0x895B9275:
+                case 0x895B9275://Else
+                case 0xC31DF569:
+                case 0x47810508:
                 case 0x870CF021:
+                case 0xA5BD4F32:
                     return this.DeserializeConditional(index, ref lines);
                 case 0x0EB375E3:
                     return this.DeserializeLoop(index, ref lines);
@@ -257,9 +259,11 @@ namespace SALT.Moveset.AnimCMD
         {
             switch (ident)
             {
-                case 0xA5BD4F32:
-                case 0x895B9275:
+                case 0x895B9275://Else
+                case 0xC31DF569:
+                case 0x47810508:
                 case 0x870CF021:
+                case 0xA5BD4F32:
                     return true;
             }
             return false;
