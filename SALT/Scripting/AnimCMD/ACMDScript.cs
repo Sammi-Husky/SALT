@@ -193,11 +193,15 @@ namespace SALT.Moveset.AnimCMD
                 else if (IsCmdHandled(this[i].Ident))
                 {
                     int amt = this.DeserializeCommand(i, this[i].Ident, ref lines) + 1;
-                    for (int x = 0; x < amt; x++)
+                    for (int x = 1; x < amt; x++)
                         len -= this[i + x].Size / 4;
 
                     i += amt;
                     count += amt;
+
+                    //if the outer Else branches to an inner else, adjust len so it contains the inner Else
+                    if (this[startIndex].Ident == 0x895B9275 && this[i].Ident == 0x895B9275 && len == 0)
+                        len += (int)this[i].Parameters[0];
                 }
                 else
                 {
