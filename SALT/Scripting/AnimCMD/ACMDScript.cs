@@ -157,12 +157,11 @@ namespace SALT.Moveset.AnimCMD
         }
         private int DeserializeCommand(int index, uint ident, ref List<string> lines)
         {
-            switch (ident)
+            if (IsCmdConditional(ident))
+                return this.DeserializeConditional(index, ref lines);
+
+            switch (ident) // for special handling
             {
-                case 0xA5BD4F32:
-                case 0x895B9275:
-                case 0x870CF021:
-                    return this.DeserializeConditional(index, ref lines);
                 case 0x0EB375E3:
                     return this.DeserializeLoop(index, ref lines);
             }
@@ -255,6 +254,8 @@ namespace SALT.Moveset.AnimCMD
                 case 0xA5BD4F32:
                 case 0x895B9275:
                 case 0x870CF021:
+                case 0x47810508: // unk_47810508
+                case 0xC31DF569: // unk_C31DF569
                     return true;
             }
             return false;
