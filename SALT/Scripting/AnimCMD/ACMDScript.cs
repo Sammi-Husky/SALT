@@ -159,9 +159,11 @@ namespace SALT.Moveset.AnimCMD
         {
             switch (ident)
             {
-                case 0xA5BD4F32:
-                case 0x895B9275:
+                case 0x895B9275://Else
+                case 0xC31DF569:
+                case 0x47810508:
                 case 0x870CF021:
+                case 0xA5BD4F32:
                     return this.DeserializeConditional(index, ref lines);
                 case 0x0EB375E3:
                     return this.DeserializeLoop(index, ref lines);
@@ -184,24 +186,22 @@ namespace SALT.Moveset.AnimCMD
             while (len > 0)
             {
                 len -= this[i].Size / 4;
-
-                if (this[i].Ident == 0x895B9275) // Break if this is an ELSE
-                {
-                    int amt = this.DeserializeConditional(i, ref lines) + 1;
-                    for (int x = 0; x < amt; x++)
-                        len -= this[i + x].Size / 4;
-
-                    i += amt;
-                    count += amt;
-                }
+                //Break if this is an Else and if the conditional statement branched into it
+                //the enclosing methods will handle it
+                if (this[i].Ident == 0x895B9275 && len == 0)
+                    break;
                 else if (IsCmdHandled(this[i].Ident))
                 {
                     int amt = this.DeserializeCommand(i, this[i].Ident, ref lines) + 1;
-                    for (int x = 0; x < amt; x++)
+                    for (int x = 1; x < amt; x++)
                         len -= this[i + x].Size / 4;
 
                     i += amt;
                     count += amt;
+
+                    //if the outer Else branches to an inner else, adjust len so it contains the inner Else
+                    if (this[startIndex].Ident == 0x895B9275 && this[i].Ident == 0x895B9275 && len == 0)
+                        len += (int)this[i].Parameters[0];
                 }
                 else
                 {
@@ -213,14 +213,6 @@ namespace SALT.Moveset.AnimCMD
 
             lines.Add("}");
 
-            //  if we encountered an else, break out of enclosing bracket scope
-            //  and then deserialize the else statement
-            //if (IsCmdConditional(this[i].Ident))
-            //{
-            //    int amt = this.DeserializeConditional(i, ref lines) + 1;
-            //    i += amt;
-            //    count += amt;
-            //}
             return count;
         }
         private int DeserializeLoop(int startIndex, ref List<string> lines)
@@ -257,9 +249,11 @@ namespace SALT.Moveset.AnimCMD
         {
             switch (ident)
             {
-                case 0xA5BD4F32:
-                case 0x895B9275:
+                case 0x895B9275://Else
+                case 0xC31DF569:
+                case 0x47810508:
                 case 0x870CF021:
+                case 0xA5BD4F32:
                     return true;
             }
             return false;

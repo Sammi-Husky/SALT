@@ -214,9 +214,11 @@ namespace SALT.Moveset.AnimCMD
         {
             switch (ident)
             {
-                case 0xA5BD4F32:
                 case 0x895B9275:
+                case 0xC31DF569:
+                case 0x47810508:
                 case 0x870CF021:
+                case 0xA5BD4F32:
                     return CompileConditional(ref index, ref lines);
                 case 0x0EB375E3:
                     return CompileLoop(ref index, ref lines);
@@ -250,7 +252,7 @@ namespace SALT.Moveset.AnimCMD
             //if the True/False statements don't have an Else afterward then just set their size to current len
             if (lines[Index + 1] != "}"
                 && CompileSingleCommand(lines[Index + 1]).Ident == 0x895B9275
-                && (cmd.Ident == 0xA5BD4F32 || cmd.Ident == 0x870CF021))
+                && IsCmdCondition(cmd.Ident))
             {
                 ACMDCommand tmp = CompileSingleCommand(lines[++Index]);
                 Commands[Commands.IndexOf(cmd)].Parameters[0] = len + tmp.Size / 4;
@@ -311,11 +313,27 @@ namespace SALT.Moveset.AnimCMD
         {
             switch (ident)
             {
-                case 0xA5BD4F32:
-                case 0x895B9275:
+                case 0x895B9275://Else
+                case 0xC31DF569:
+                case 0x47810508:
                 case 0x870CF021:
+                case 0xA5BD4F32:
                     return true;
                 case 0x0EB375E3:
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsCmdCondition(uint ident)
+        {
+            switch (ident)
+            {
+                case 0xC31DF569:
+                case 0x47810508:
+                case 0x870CF021:
+                case 0xA5BD4F32:
                     return true;
             }
 

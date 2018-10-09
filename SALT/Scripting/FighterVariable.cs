@@ -107,16 +107,18 @@ namespace SALT.Moveset
         SpecialS = 6,
         SpecialHi = 7,
         SpecialLw = 8,
+        fighter_param_equipment_ability = 9,
 
-        // uncomfirmed
-        ActionStatus1 = 14,
-        ActionStatus2 = 15,
+        // status transition //
+        STrans = 14,
+        STransGroup = 15,
+        
         undefined = 255
     }
     public enum VarDataType
     {
         Float = 0,
-        Basic = 1,
-        Bit = 2
+        Int = 1,
+        Flag = 2
     }
 }
